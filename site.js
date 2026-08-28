@@ -6,6 +6,7 @@
   const header = document.querySelector("[data-header]");
   const hero = document.querySelector("[data-hero]");
   const heroMedia = document.querySelector("[data-parallax]");
+  const standardImage = document.querySelector(".standard-image");
 
   root.classList.add("motion-ready");
 
@@ -16,6 +17,7 @@
 
   if (reduceMotion || !("IntersectionObserver" in window)) {
     revealItems.forEach((item) => item.classList.add("is-visible"));
+    if (standardImage) standardImage.classList.add("is-active");
   } else {
     const observer = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
@@ -26,6 +28,15 @@
     }, { threshold: 0.12, rootMargin: "0px 0px -7%" });
 
     revealItems.forEach((item) => observer.observe(item));
+
+    if (standardImage) {
+      const visualObserver = new IntersectionObserver((entries) => {
+        if (!entries[0]?.isIntersecting) return;
+        standardImage.classList.add("is-active");
+        visualObserver.disconnect();
+      }, { threshold: 0.28 });
+      visualObserver.observe(standardImage);
+    }
   }
 
   let framePending = false;
@@ -56,4 +67,3 @@
 
   updateScroll();
 })();
-
