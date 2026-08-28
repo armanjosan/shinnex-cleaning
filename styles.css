@@ -371,7 +371,7 @@ footer a:hover { color: var(--cyan); }
 }
 .motion-ready [data-reveal="right"] { transform: translate3d(44px, 0, 0); }
 .motion-ready [data-reveal].is-visible { opacity: 1; transform: translate3d(0, 0, 0); }
-.motion-ready .hero [data-reveal] { opacity: 1; transform: none; animation: heroEnter .72s cubic-bezier(.2,.75,.2,1) both; animation-delay: var(--reveal-delay, 0ms); }
+.motion-ready .hero [data-reveal] { opacity: 1 !important; transform: none !important; animation: none !important; transition: none !important; }
 
 @keyframes orbitFloat {
   0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
