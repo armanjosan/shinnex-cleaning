@@ -1,6 +1,7 @@
 (() => {
   const root = document.documentElement;
-  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;\n  const phoneViewport = window.matchMedia("(max-width: 700px)").matches;
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const phoneViewport = window.matchMedia("(max-width: 700px)").matches;
   const revealItems = Array.from(document.querySelectorAll("[data-reveal]"));
   const progress = document.querySelector(".scroll-progress span");
   const header = document.querySelector("[data-header]");
