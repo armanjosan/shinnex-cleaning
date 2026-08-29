@@ -6,9 +6,20 @@
   const header = document.querySelector("[data-header]");
   const hero = document.querySelector("[data-hero]");
   const heroMedia = document.querySelector("[data-parallax]");
+  const scrollVideo = document.querySelector("[data-scroll-video]");
+  const videoStage = scrollVideo?.closest(".hero-stage");
   const standardImage = document.querySelector(".standard-image");
 
   root.classList.add("motion-ready");
+
+  if (scrollVideo && !reduceMotion) {
+    scrollVideo.muted = true;
+    scrollVideo.addEventListener("loadeddata", () => {
+      scrollVideo.classList.add("is-ready");
+      updateScroll();
+    }, { once: true });
+    scrollVideo.addEventListener("error", () => scrollVideo.classList.remove("is-ready"));
+  }
 
   revealItems.forEach((item) => {
     const delay = item.getAttribute("data-delay");
@@ -47,6 +58,13 @@
     if (header) header.classList.toggle("is-scrolled", y > 24);
     if (!reduceMotion && heroMedia && y < window.innerHeight * 1.35) {
       heroMedia.style.setProperty("--parallax-y", `${Math.min(y * 0.09, 92)}px`);
+    }
+    if (!reduceMotion && scrollVideo && videoStage && scrollVideo.readyState >= 1 && Number.isFinite(scrollVideo.duration)) {
+      const bounds = videoStage.getBoundingClientRect();
+      const travel = window.innerHeight + bounds.height;
+      const progress = Math.min(Math.max((window.innerHeight - bounds.top) / travel, 0), 1);
+      const nextTime = progress * Math.max(scrollVideo.duration - 0.08, 0);
+      if (Math.abs(scrollVideo.currentTime - nextTime) > 0.025) scrollVideo.currentTime = nextTime;
     }
     framePending = false;
   };
