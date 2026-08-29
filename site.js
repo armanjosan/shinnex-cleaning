@@ -13,6 +13,7 @@
   let renderedVideoTime = 0;
   let videoFrame = 0;
   let previousFrameTime = 0;
+  const videoFrameDuration = 1 / 25;
 
   const renderVideoFrame = (timestamp) => {
     videoFrame = 0;
@@ -20,19 +21,23 @@
 
     const elapsed = previousFrameTime ? Math.min(timestamp - previousFrameTime, 64) : 16.67;
     previousFrameTime = timestamp;
-    const easing = 1 - Math.exp(-elapsed / 70);
+    const easing = 1 - Math.exp(-elapsed / 62);
     const difference = targetVideoTime - renderedVideoTime;
     renderedVideoTime += difference * easing;
+    const maxVideoTime = Math.max(scrollVideo.duration - videoFrameDuration, 0);
+    const seekTime = Math.min(Math.max(Math.round(renderedVideoTime / videoFrameDuration) * videoFrameDuration, 0), maxVideoTime);
 
-    if (Math.abs(scrollVideo.currentTime - renderedVideoTime) > 0.01) {
-      scrollVideo.currentTime = renderedVideoTime;
+    if (!scrollVideo.seeking && Math.abs(scrollVideo.currentTime - seekTime) >= videoFrameDuration * 0.45) {
+      scrollVideo.currentTime = seekTime;
     }
 
     if (Math.abs(difference) > 0.002) {
       videoFrame = window.requestAnimationFrame(renderVideoFrame);
     } else {
       renderedVideoTime = targetVideoTime;
-      scrollVideo.currentTime = targetVideoTime;
+      if (!scrollVideo.seeking && Math.abs(scrollVideo.currentTime - targetVideoTime) >= videoFrameDuration * 0.45) {
+        scrollVideo.currentTime = targetVideoTime;
+      }
       previousFrameTime = 0;
     }
   };
@@ -50,6 +55,9 @@
       scrollVideo.classList.add("is-ready");
       updateScroll();
     }, { once: true });
+    scrollVideo.addEventListener("seeked", () => {
+      if (Math.abs(targetVideoTime - renderedVideoTime) > 0.002) queueVideoFrame();
+    });
     scrollVideo.addEventListener("error", () => scrollVideo.classList.remove("is-ready"));
   }
 
@@ -96,8 +104,7 @@
       const viewportAnchor = window.innerHeight * 0.9;
       const travel = viewportAnchor + bounds.height;
       const rawProgress = Math.min(Math.max((viewportAnchor - bounds.top) / travel, 0), 1);
-      const smoothProgress = rawProgress * rawProgress * (3 - 2 * rawProgress);
-      targetVideoTime = smoothProgress * Math.max(scrollVideo.duration - 0.08, 0);
+      targetVideoTime = rawProgress * Math.max(scrollVideo.duration - videoFrameDuration, 0);
       queueVideoFrame();
     }
     framePending = false;
