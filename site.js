@@ -1,6 +1,6 @@
 (() => {
   const root = document.documentElement;
-  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;\n  const phoneViewport = window.matchMedia("(max-width: 700px)").matches;
   const revealItems = Array.from(document.querySelectorAll("[data-reveal]"));
   const progress = document.querySelector(".scroll-progress span");
   const header = document.querySelector("[data-header]");
@@ -50,15 +50,62 @@
 
   if (scrollVideo && !reduceMotion) {
     scrollVideo.muted = true;
-    scrollVideo.addEventListener("loadeddata", () => {
+    const revealScrollVideo = () => {
+      if (scrollVideo.readyState < 2) return;
       scrollVideo.pause();
       scrollVideo.classList.add("is-ready");
-      updateScroll();
-    }, { once: true });
+      window.requestAnimationFrame(() => updateScroll());
+    };
+
+    scrollVideo.addEventListener("loadeddata", revealScrollVideo);
+    scrollVideo.addEventListener("canplay", revealScrollVideo);
     scrollVideo.addEventListener("seeked", () => {
       if (Math.abs(targetVideoTime - renderedVideoTime) > 0.002) queueVideoFrame();
     });
     scrollVideo.addEventListener("error", () => scrollVideo.classList.remove("is-ready"));
+
+    if (scrollVideo.readyState >= 2) revealScrollVideo();
+
+    if (phoneViewport) {
+      let unlockPending = false;
+      let phoneVideoUnlocked = false;
+      scrollVideo.setAttribute("webkit-playsinline", "");
+      if (scrollVideo.readyState < 2) scrollVideo.load();
+
+      const unlockPhoneVideo = () => {
+        if (unlockPending || phoneVideoUnlocked) return;
+        unlockPending = true;
+        scrollVideo.muted = true;
+        const playAttempt = scrollVideo.play();
+
+        if (playAttempt && typeof playAttempt.then === "function") {
+          playAttempt
+            .then(() => {
+              scrollVideo.pause();
+              revealScrollVideo();
+              phoneVideoUnlocked = true;
+              unlockPending = false;
+            })
+            .catch(() => {
+              unlockPending = false;
+              if (scrollVideo.readyState < 1) scrollVideo.load();
+            });
+        } else {
+          scrollVideo.pause();
+          revealScrollVideo();
+          phoneVideoUnlocked = true;
+          unlockPending = false;
+        }
+      };
+
+      window.addEventListener("touchstart", unlockPhoneVideo, { passive: true });
+      window.addEventListener("pointerdown", unlockPhoneVideo, { passive: true });
+      document.addEventListener("visibilitychange", () => {
+        if (document.hidden) return;
+        if (scrollVideo.readyState >= 2) revealScrollVideo();
+        else scrollVideo.load();
+      });
+    }
   }
 
   revealItems.forEach((item) => {
