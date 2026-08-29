@@ -312,14 +312,33 @@ em { font-style: normal; }
 .service-card:nth-child(2), .service-card:nth-child(3) { grid-column: span 5; }
 .service-card:nth-child(5), .service-card:nth-child(6) { grid-column: span 6; }
 .service-card:nth-child(4) { background: linear-gradient(145deg, #0877ff, #16b6ef); }
-.service-card > div, .service-card > i { position: relative; z-index: 2; }
+.service-visual {
+  position: absolute;
+  z-index: 0;
+  inset: 0 0 auto;
+  height: 62%;
+  background-repeat: no-repeat;
+  background-size: 200% auto;
+  filter: saturate(.92) contrast(1.03) brightness(.96);
+  transform: scale(1.01);
+  transform-origin: center;
+  transition: transform .55s cubic-bezier(.2,.75,.2,1);
+}
+.service-visual::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(255,255,255,.02) 10%, rgba(255,255,255,.12) 48%, rgba(255,255,255,.98) 100%); }
+.service-card:nth-child(1) .service-visual::after { background: linear-gradient(180deg, rgba(3,12,28,.04) 8%, rgba(5,24,54,.22) 48%, #071b3b 100%); }
+.service-card:nth-child(4) .service-visual::after { background: linear-gradient(180deg, rgba(0,83,180,.02) 8%, rgba(4,124,219,.2) 48%, #119ee9 100%); }
+.service-card:hover .service-visual { transform: scale(1.055); }
+.service-visual-01, .service-visual-02 { background-image: url("service-pair-1.webp"); }
+.service-visual-03, .service-visual-04 { background-image: url("service-pair-2.webp"); }
+.service-visual-05, .service-visual-06 { background-image: url("service-pair-3.webp"); }
+.service-visual-01, .service-visual-03, .service-visual-05 { background-position: left center; }
+.service-visual-02, .service-visual-04, .service-visual-06 { background-position: right center; }
+.service-number, .service-copy { position: relative; z-index: 2; }
 .service-number { color: var(--blue); font-size: 13px; font-weight: 850; letter-spacing: .12em; }
 .service-card:nth-child(1) .service-number, .service-card:nth-child(4) .service-number { color: var(--cyan); }
 .service-card h3 { margin: 0 0 14px; font-size: clamp(25px, 2.15vw, 34px); line-height: 1.08; letter-spacing: -.035em; }
 .service-card p { max-width: 560px; margin: 0; color: var(--muted); font-size: 17px; line-height: 1.7; }
 .service-card:nth-child(1) p, .service-card:nth-child(4) p { color: rgba(235,247,255,.74); }
-.service-card > i { position: absolute; top: 28px; right: 29px; color: #8aa2bb; font-size: 24px; font-style: normal; }
-.service-card:nth-child(1) > i, .service-card:nth-child(4) > i { color: rgba(255,255,255,.7); }
 .scope-note { max-width: 1420px; margin: 25px auto 0; color: #63768a; font-size: 14px; text-align: right; }
 
 .standard-section { padding: clamp(110px, 11vw, 170px) var(--page-pad); background: #03070d; color: var(--white); }
