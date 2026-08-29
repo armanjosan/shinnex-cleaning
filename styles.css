@@ -411,7 +411,7 @@ em { font-style: normal; }
 .footer-links a, .footer-contact a, .footer-contact p { margin: 0; color: rgba(236,247,255,.78); font-size: 16px; font-weight: 620; line-height: 1.55; overflow-wrap: anywhere; transition: color .2s ease; }
 .footer-contact p { max-width: 250px; color: rgba(226,242,255,.58); }
 .site-footer a:hover { color: var(--cyan); }
-.footer-bottom { display: flex; align-items: center; justify-content: space-between; gap: 24px; max-width: 1440px; margin: 26px auto 0; padding: 0 8px; color: rgba(226,242,255,.48); font-size: 13px; }
+.footer-bottom { display: flex; align-items: center; justify-content: space-between; gap: 24px; max-width: 1440px; margin: 26px auto 0; padding: 0 8px; color: rgba(226,242,255,.68); font-size: 14px; }
 .footer-bottom p { margin: 0; }
 .footer-bottom a { display: inline-flex; align-items: center; gap: 8px; color: rgba(236,247,255,.72); font-weight: 680; }
 
