@@ -9,12 +9,44 @@
   const scrollVideo = document.querySelector("[data-scroll-video]");
   const videoStage = scrollVideo?.closest(".hero-stage");
   const standardImage = document.querySelector(".standard-image");
+  let targetVideoTime = 0;
+  let renderedVideoTime = 0;
+  let videoFrame = 0;
+  let previousFrameTime = 0;
+
+  const renderVideoFrame = (timestamp) => {
+    videoFrame = 0;
+    if (!scrollVideo || reduceMotion || scrollVideo.readyState < 1 || !Number.isFinite(scrollVideo.duration)) return;
+
+    const elapsed = previousFrameTime ? Math.min(timestamp - previousFrameTime, 64) : 16.67;
+    previousFrameTime = timestamp;
+    const easing = 1 - Math.exp(-elapsed / 70);
+    const difference = targetVideoTime - renderedVideoTime;
+    renderedVideoTime += difference * easing;
+
+    if (Math.abs(scrollVideo.currentTime - renderedVideoTime) > 0.01) {
+      scrollVideo.currentTime = renderedVideoTime;
+    }
+
+    if (Math.abs(difference) > 0.002) {
+      videoFrame = window.requestAnimationFrame(renderVideoFrame);
+    } else {
+      renderedVideoTime = targetVideoTime;
+      scrollVideo.currentTime = targetVideoTime;
+      previousFrameTime = 0;
+    }
+  };
+
+  const queueVideoFrame = () => {
+    if (!videoFrame) videoFrame = window.requestAnimationFrame(renderVideoFrame);
+  };
 
   root.classList.add("motion-ready");
 
   if (scrollVideo && !reduceMotion) {
     scrollVideo.muted = true;
     scrollVideo.addEventListener("loadeddata", () => {
+      scrollVideo.pause();
       scrollVideo.classList.add("is-ready");
       updateScroll();
     }, { once: true });
@@ -61,10 +93,12 @@
     }
     if (!reduceMotion && scrollVideo && videoStage && scrollVideo.readyState >= 1 && Number.isFinite(scrollVideo.duration)) {
       const bounds = videoStage.getBoundingClientRect();
-      const travel = window.innerHeight + bounds.height;
-      const progress = Math.min(Math.max((window.innerHeight - bounds.top) / travel, 0), 1);
-      const nextTime = progress * Math.max(scrollVideo.duration - 0.08, 0);
-      if (Math.abs(scrollVideo.currentTime - nextTime) > 0.025) scrollVideo.currentTime = nextTime;
+      const viewportAnchor = window.innerHeight * 0.9;
+      const travel = viewportAnchor + bounds.height;
+      const rawProgress = Math.min(Math.max((viewportAnchor - bounds.top) / travel, 0), 1);
+      const smoothProgress = rawProgress * rawProgress * (3 - 2 * rawProgress);
+      targetVideoTime = smoothProgress * Math.max(scrollVideo.duration - 0.08, 0);
+      queueVideoFrame();
     }
     framePending = false;
   };
